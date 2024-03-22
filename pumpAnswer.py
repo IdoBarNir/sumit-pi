@@ -1,8 +1,14 @@
 import sys
+import os
+
+current_script_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_script_dir)
+sys.path.insert(0, parent_dir)
+import gpio
+
 import time
 import threading
 import logging
-import gpio
 from pygame import mixer
 
 logging.basicConfig(level=logging.INFO,
