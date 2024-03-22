@@ -1,8 +1,7 @@
 import socketio
 import logging
 import subprocess
-import time
-import sys
+
 
 logging.basicConfig(level=logging.INFO,
                     filename='server_connection.log',
@@ -16,6 +15,8 @@ sio = socketio.Client()
 @sio.event
 def connect():
     logger.info("Connected to the server.")
+    sio.emit('identifyPi')  
+    logger.info("Identified as Raspberry Pi to the server.")
 
 @sio.event
 def connect_error(data):
@@ -29,13 +30,13 @@ def disconnect():
 def pumpControl(data):
     player_answer = data['playerAnswer'] 
     is_answer_correct = data['isAnswerCorrect']
-    logger.info(f"Received playerAnswer: {player_answer}")
+    logger.info(f"Received pumpControl with playerAnswer: {player_answer} and is_answer_correct: {is_answer_correct}")
 
     pumpAnswerPath = '/home/sumit/sumit-pi/pumpAnswer.py'
     
     try:
         subprocess.run(['python3', pumpAnswerPath, player_answer, str(is_answer_correct)], check=True)
-        logger.info(f"Successfully ran pumpAnswer with player_answer: {player_answer}, is_answer_correct: {is_answer_correct}")
+        logger.info(f"Successfully ran pumpAnswer with player_answer: {player_answer} and is_answer_correct: {is_answer_correct}")
     except subprocess.CalledProcessError as error:
         logger.error(f"Error running pumpAnswer.py: {error}")
     
