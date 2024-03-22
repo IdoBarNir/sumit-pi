@@ -15,7 +15,7 @@ sio = socketio.Client()
 @sio.event
 def connect():
     logger.info("Connected to the server.")
-    sio.emit('identifyPi')  
+    sio.emit('identifyPi') 
     logger.info("Identified as Raspberry Pi to the server.")
 
 @sio.event
