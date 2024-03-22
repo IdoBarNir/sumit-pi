@@ -7,6 +7,9 @@ from pygame import mixer
 mixer.init()
 start_music = mixer.Sound("start.mp3")
 stop_music = mixer.Sound("stop.mp3")
+win_music = mixer.Sound("dance.mp3")
+lose_music = mixer.Sound("dance.mp3")
+
 pump_pin = 20
 speaker_pin = 21
 valves = {
@@ -24,13 +27,17 @@ def operate_valve(valve):
     gpio.Off(valves[valve]['in'])
     print(f"Valve {valve}-In closed")
 
-    time.sleep(valves[valve]['buffer'])
     start_music.stop()
+    if is_answer_correct:
+        win_music.play()
+    else:
+        lose_music.play()
+    
+    time.sleep(valves[valve]['buffer'])
 
     stop_music.play()
     gpio.On(valves[valve]['out'])
     print(f"Valve {valve}-Out opened")
-
 
     time.sleep(valves[valve]['out-duration'])
     stop_music.stop()
@@ -59,12 +66,12 @@ if __name__ == "__main__":
         sys.exit(1)
 
     player_answer = sys.argv[1].upper()
-    is_answer_correct = sys.argv[2]  # Currently not used, can be used to play specific sound based on answer correctness.
+    is_answer_correct = sys.argv[2]  
 
     gpio.On(speaker_pin)
     gpio.On(pump_pin)
 
-    control_valves(player_answer)
+    control_valves(player_answer, is_answer_correct)
 
     gpio.Off(pump_pin)
     gpio.Off(speaker_pin)
