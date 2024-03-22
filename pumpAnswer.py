@@ -6,7 +6,7 @@ import gpio
 from pygame import mixer
 
 logging.basicConfig(level=logging.INFO,
-                    filename='valve_operations.log',
+                    filename='pump_answer.log',
                     filemode='a',
                     format='%(asctime)s - %(levelname)s - %(message)s')
 

@@ -4,9 +4,8 @@ import subprocess
 import time
 import sys
 
-log_filename = 'pumpAnswerLogs.log'
 logging.basicConfig(level=logging.INFO,
-                    filename=log_filename,
+                    filename='server_connection.log',
                     filemode='a',  
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
