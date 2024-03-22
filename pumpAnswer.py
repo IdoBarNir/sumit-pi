@@ -1,14 +1,22 @@
 import sys
 import time
 import threading
+import logging
 import gpio
 from pygame import mixer
+
+logging.basicConfig(level=logging.INFO,
+                    filename='valve_operations.log',
+                    filemode='a',
+                    format='%(asctime)s - %(levelname)s - %(message)s')
+
+logger = logging.getLogger(__name__)
 
 mixer.init()
 start_music = mixer.Sound("start.mp3")
 stop_music = mixer.Sound("stop.mp3")
-win_music = mixer.Sound("dance.mp3")
-lose_music = mixer.Sound("dance.mp3")
+win_music = mixer.Sound("dance.mp3")  
+lose_music = mixer.Sound("dance.mp3")  
 
 pump_pin = 20
 speaker_pin = 21
@@ -18,17 +26,17 @@ valves = {
     'C': {'in': 6, 'out': 26, 'in-duration': 60, "buffer":5, "out-duration": 60},
 }
 
-def operate_valve(valve):
+def operate_valve(valve, is_answer_correct):
     start_music.play()
     gpio.On(valves[valve]['in'])
-    print(f"Valve {valve}-In opened")
+    logger.info(f"Valve {valve}-In opened")
     
     time.sleep(valves[valve]['in-duration'])
     gpio.Off(valves[valve]['in'])
-    print(f"Valve {valve}-In closed")
+    logger.info(f"Valve {valve}-In closed")
 
     start_music.stop()
-    if is_answer_correct:
+    if is_answer_correct == 'True':
         win_music.play()
     else:
         lose_music.play()
@@ -37,36 +45,36 @@ def operate_valve(valve):
 
     stop_music.play()
     gpio.On(valves[valve]['out'])
-    print(f"Valve {valve}-Out opened")
+    logger.info(f"Valve {valve}-Out opened")
 
     time.sleep(valves[valve]['out-duration'])
     stop_music.stop()
-    print(f"Valve {valve}-Out closed")
+    logger.info(f"Valve {valve}-Out closed")
 
-def control_valves(player_answer):
-    print("Starting valve operations...")
+def control_valves(player_answer, is_answer_correct):
+    logger.info("Starting valve operations...")
 
     threads = []
     for valve in player_answer:
         if valve in valves:
-            thread = threading.Thread(target=operate_valve, args=(valve,))
+            thread = threading.Thread(target=operate_valve, args=(valve, is_answer_correct))
             threads.append(thread)
             thread.start()
         else:
-            print(f"Invalid valve code: {valve}")
+            logger.warning(f"Invalid valve code: {valve}")
     
     for thread in threads:
         thread.join()
     
-    print("Completed all valve operations.")
+    logger.info("Completed all valve operations.")
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Incorrect number of arguments.")
+        logger.error("Incorrect number of arguments.")
         sys.exit(1)
 
     player_answer = sys.argv[1].upper()
-    is_answer_correct = sys.argv[2]  
+    is_answer_correct = sys.argv[2]
 
     gpio.On(speaker_pin)
     gpio.On(pump_pin)

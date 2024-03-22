@@ -4,15 +4,13 @@ import subprocess
 import time
 import sys
 
+log_filename = 'pumpAnswerLogs.log'
+logging.basicConfig(level=logging.INFO,
+                    filename=log_filename,
+                    filemode='a',  
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 logger = logging.getLogger('SocketIOClient')
-logger.setLevel(logging.INFO)
-
-handler = logging.StreamHandler(sys.stdout)
-
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-
-logger.addHandler(handler)
 
 sio = socketio.Client()
 
@@ -41,7 +39,6 @@ def pumpControl(data):
         logger.info(f"Successfully ran pumpAnswer with player_answer: {player_answer}, is_answer_correct: {is_answer_correct}")
     except subprocess.CalledProcessError as error:
         logger.error(f"Error running pumpAnswer.py: {error}")
-
     
     sio.emit('continueProcessing', {'status': 'ready'})
     logger.info("Sent continuation signal to the server.")
