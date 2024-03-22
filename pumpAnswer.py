@@ -25,6 +25,8 @@ valves = {
     'B': {'in': 5, 'out': 16, 'in-duration': 60, "buffer":5, "out-duration": 60},
     'C': {'in': 6, 'out': 26, 'in-duration': 60, "buffer":5, "out-duration": 60},
 }
+GPIOpins = [23,17,24,27,25,22,16,5,6,26,21,20]
+gpio.Init(GPIOpins)
 
 def operate_valve(valve, is_answer_correct):
     start_music.play()
