@@ -4,20 +4,16 @@ import subprocess
 import time
 import sys
 
-# Set up logging to print to the terminal
 logger = logging.getLogger('SocketIOClient')
 logger.setLevel(logging.INFO)
 
-# Create a StreamHandler to output logs to stdout
 handler = logging.StreamHandler(sys.stdout)
 
-# Optional: set a formatter if you want to customize the log output format
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 
-# Initialize the Socket.IO client
 sio = socketio.Client()
 
 @sio.event
@@ -34,36 +30,29 @@ def disconnect():
 
 @sio.event
 def pumpControl(data):
-    answer = data['answer']
-    logger.info(f"Received answer: {answer}")
+    player_answer = data['playerAnswer'] 
+    is_answer_correct = data['isAnswerCorrect']
+    logger.info(f"Received playerAnswer: {player_answer}")
 
-    # Specify the path to the SumIt.py script
-    path_to_sumit = '/home/sumit/SumIt.py'
+    pumpAnswerPath = '/home/sumit/sumit-pi/pumpAnswer.py'
     
-    # Attempt to run SumIt.py with the received answer as an argument
     try:
-        subprocess.run(['python3', path_to_sumit, answer], check=True)
-        logger.info(f"Successfully ran SumIt.py with answer: {answer}")
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Error running SumIt.py: {e}")
+        subprocess.run(['python3', pumpAnswerPath, player_answer, str(is_answer_correct)], check=True)
+        logger.info(f"Successfully ran pumpAnswer with player_answer: {player_answer}, is_answer_correct: {is_answer_correct}")
+    except subprocess.CalledProcessError as error:
+        logger.error(f"Error running pumpAnswer.py: {error}")
+
     
-    # Sleep for 10 seconds before sending the continuation signal
-    logger.info("Sleeping for 10 seconds...")
-    time.sleep(10)  # Sleep for 10 seconds to simulate delay or waiting for an operation to complete
-    
-    # Send a continuation signal back to the server
     sio.emit('continueProcessing', {'status': 'ready'})
     logger.info("Sent continuation signal to the server.")
 
 def main():
     try:
-        # Connect to the server
         sio.connect('https://sumit-back.onrender.com')
         logger.info("Attempting to connect to the server...")
-        # Wait for events
         sio.wait()
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
+    except Exception as exception:
+        logger.error(f"An error occurred: {exception}")
 
 if __name__ == '__main__':
     main()
