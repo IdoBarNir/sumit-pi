@@ -40,7 +40,8 @@ def pumpControl(data):
     except subprocess.CalledProcessError as error:
         logger.error(f"Error running pumpAnswer.py: {error}")
     
-    sio.emit('continueProcessing', {'status': 'ready'})
+    sio.emit('continueProcessing', {'status': 'ready'},callback=lambda data: logger.info(f"Server acknowledged with {data}"))
+
     logger.info("Sent continuation signal to the server.")
 
 def main():
