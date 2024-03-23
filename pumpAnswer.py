@@ -75,3 +75,5 @@ if __name__ == "__main__":
 
     gpio.Off(pump_pin)
     gpio.Off(speaker_pin)
+    sys.exit(0)
+
